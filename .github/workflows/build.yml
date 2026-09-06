@@ -1,0 +1,77 @@
+name: Android Release APK
+
+on:
+  push:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Setup release keystore
+        run: |
+          if [ -n "${{ secrets.LETSFLY_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.LETSFLY_KEYSTORE_BASE64 }}" | base64 --decode > android/app/letsfly-release.jks
+            cat > android/key.properties <<PROPS
+          storePassword=${{ secrets.LETSFLY_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.LETSFLY_KEY_PASSWORD }}
+          keyAlias=${{ secrets.LETSFLY_KEY_ALIAS }}
+          storeFile=letsfly-release.jks
+          PROPS
+          else
+            keytool -genkey -v -keystore android/app/letsfly-release.jks -storepass letsfly2026 -alias letsfly -keypass letsfly2026 -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=LetsFly, OU=Mobile, O=LetsFly, L=Cairo, S=Cairo, C=EG"
+            cat > android/key.properties <<PROPS
+          storePassword=letsfly2026
+          keyPassword=letsfly2026
+          keyAlias=letsfly
+          storeFile=letsfly-release.jks
+          PROPS
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+
+      - name: Test
+        run: flutter test || true
+
+      - name: Build signed release APK
+        run: flutter build apk --release --android-skip-build-dependency-validation
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: letsfly-android-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/heads/main')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.repository.name }}-${{ github.run_number }}
+          name: Let's Fly Android Build ${{ github.run_number }}
+          generate_release_notes: true
+          files: build/app/outputs/flutter-apk/app-release.apk

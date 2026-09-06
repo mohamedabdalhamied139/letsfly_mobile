@@ -1,0 +1,14 @@
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -26,6 +26,10 @@
+-      - name: Regenerate Android project
+-        run: |
+-          rm -rf android
+-          flutter create --platforms=android .
+-          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.RECORD_AUDIO"\/>\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"\/>\n    <application android:usesCleartextTraffic="true"/g' android/app/src/main/AndroidManifest.xml
++      - name: Configure Keystore
++        run: |
++          echo "keyAlias=letsfly" > android/key.properties
++          echo "keyPassword=letsfly2026" >> android/key.properties
++          echo "storeFile=letsfly-release.jks" >> android/key.properties
++          echo "storePassword=letsfly2026" >> android/key.properties

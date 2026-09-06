@@ -1,0 +1,7 @@
+{
+  "version": "8.6.0",
+  "version_code": 86,
+  "release_notes": "1. تطابق كامل 100% مع واجهة ويندوز وقوائم الألعاب.\n2. فصل قائمة خيارات الطاولة عن قائمة التنقل.\n3. حل شاشة الانتظار ومزامنة حالة اللعبة مع الخادم.\n4. إمكانية الخروج التام من السيرفر وإعادة الاتصال النظيف.\n5. ميزة التحديث المباشر من داخل التطبيق.",
+  "apk_url": "https://github.com/mohamedabdalhamied139/letsfly_mobile/releases/download/v8.6/app-release.apk",
+  "mandatory": false
+}

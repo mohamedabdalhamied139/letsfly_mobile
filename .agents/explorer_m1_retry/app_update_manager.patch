@@ -1,0 +1,7 @@
+--- a/lib/core/services/app_update_manager.dart
++++ b/lib/core/services/app_update_manager.dart
+@@ -33,2 +33,2 @@
+-  static const String currentVersion = '2.0.0';
+-  static const int currentVersionCode = 1;
++  static const String currentVersion = '8.6.0';
++  static const int currentVersionCode = 86;
